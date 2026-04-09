@@ -26,6 +26,7 @@ const customerSchema = new mongoose.Schema({
   },
   cardNumber: {
     type: String,
+    required: [true, 'Card number is required'],
     trim: true,
   },
   email: {
