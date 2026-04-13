@@ -26,18 +26,7 @@ const createCustomer = async (req, res) => {
       req.body.email = undefined;
     }
 
-    const existingCustomer = await Customer.findOne({ mobileNumber: req.body.mobileNumber });
-    if (existingCustomer) {
-      return res.status(400).json({ success: false, error: 'This mobile number is already registered to another customer.' });
-    }
-
-    if (req.body.email && req.body.email.trim() !== '') {
-      const existingEmail = await Customer.findOne({ email: req.body.email.toLowerCase() });
-      if (existingEmail) {
-        return res.status(400).json({ success: false, error: 'This email address is already registered to another customer.' });
-      }
-    }
-
+    // email and mobileNumber no longer need to be unique
     const customer = await Customer.create(req.body);
     res.status(201).json({ success: true, data: customer });
   } catch (error) {
@@ -110,7 +99,7 @@ const activateAcmc = async (req, res) => {
     }
 
     // Set ACMC fields
-    const startDate = new Date();
+    const startDate = req.body.startDate ? new Date(req.body.startDate) : new Date();
     const expiryDate = new Date(startDate);
     expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
@@ -186,27 +175,7 @@ const updateCustomer = async (req, res) => {
       req.body.email = undefined;
     }
 
-    // Check if the requested mobile number already exists on another customer
-    if (req.body.mobileNumber) {
-      const existingCustomer = await Customer.findOne({
-        mobileNumber: req.body.mobileNumber,
-        _id: { $ne: id }
-      });
-      if (existingCustomer) {
-        return res.status(400).json({ success: false, error: 'This mobile number is already registered to another customer.' });
-      }
-    }
-
-    if (req.body.email && req.body.email.trim() !== '') {
-      const existingEmail = await Customer.findOne({
-        email: req.body.email.toLowerCase(),
-        _id: { $ne: id }
-      });
-      if (existingEmail) {
-        return res.status(400).json({ success: false, error: 'This email address is already registered to another customer.' });
-      }
-    }
-
+    // email and mobileNumber no longer need to be unique
     const updatedCustomer = await Customer.findByIdAndUpdate(
       id,
       req.body,
@@ -254,6 +223,51 @@ const getProducts = async (req, res) => {
   }
 };
 
+// @desc    Search customers by name or phone (collapses duplicates for same person/location)
+// @route   GET /api/customers/search
+// @access  Public
+const searchCustomers = async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) return res.status(200).json({ success: true, data: [] });
+
+    const searchRegex = new RegExp(q, 'i');
+    
+    const customers = await Customer.aggregate([
+      {
+        $match: {
+          $or: [
+            { userName: searchRegex },
+            { mobileNumber: searchRegex }
+          ]
+        }
+      },
+      {
+        $group: {
+          _id: { 
+            mobile: "$mobileNumber", 
+            address: "$address" 
+          },
+          userName: { $first: "$userName" },
+          mobileNumber: { $first: "$mobileNumber" },
+          email: { $first: "$email" },
+          address: { $first: "$address" },
+          doorNo: { $first: "$doorNo" },
+          street: { $first: "$street" },
+          area: { $first: "$area" },
+          pincode: { $first: "$pincode" }
+        }
+      },
+      { $limit: 10 },
+      { $sort: { userName: 1 } }
+    ]);
+
+    res.status(200).json({ success: true, data: customers });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error', message: error.message });
+  }
+};
+
 module.exports = {
   getCustomers,
   createCustomer,
@@ -262,5 +276,6 @@ module.exports = {
   cancelAcmc,
   updateCustomer,
   getProducts,
-  deleteCustomer
+  deleteCustomer,
+  searchCustomers
 };

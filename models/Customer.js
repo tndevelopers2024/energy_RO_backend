@@ -10,11 +10,30 @@ const customerSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Mobile number is required'],
     trim: true,
-    unique: true,
   },
   address: {
     type: String,
     required: [true, 'Installation address is required'],
+    trim: true,
+  },
+  doorNo: {
+    type: String,
+    trim: true,
+  },
+  street: {
+    type: String,
+    trim: true,
+  },
+  area: {
+    type: String,
+    trim: true,
+  },
+  pincode: {
+    type: String,
+    trim: true,
+  },
+  locationLink: {
+    type: String,
     trim: true,
   },
   dateOfInstallationOrService: {
@@ -33,8 +52,6 @@ const customerSchema = new mongoose.Schema({
     type: String,
     trim: true,
     lowercase: true,
-    unique: true,
-    sparse: true,
   },
   invoiceDate: {
     type: Date,
@@ -50,6 +67,20 @@ const customerSchema = new mongoose.Schema({
     type: String,
     enum: ['Installation', 'Service'],
     default: 'Installation',
+  },
+  unitSerialNumber: {
+    type: String,
+    trim: true,
+  },
+  occupation: {
+    type: String,
+    trim: true,
+  },
+  dob: {
+    type: Date,
+  },
+  weddingAnniversary: {
+    type: Date,
   },
   servicesCompleted: {
     type: [Boolean],
@@ -92,5 +123,21 @@ const customerSchema = new mongoose.Schema({
     remarks: String
   }]
 }, { timestamps: true });
+
+// Combine address fields before saving
+customerSchema.pre('save', function() {
+  if (this.doorNo || this.street || this.area || this.pincode) {
+    const parts = [
+      this.doorNo,
+      this.street,
+      this.area,
+      this.pincode ? `Pincode: ${this.pincode}` : ''
+    ].filter(part => part && part.trim() !== '');
+    
+    if (parts.length > 0) {
+      this.address = parts.join(', ');
+    }
+  }
+});
 
 module.exports = mongoose.model('Customer', customerSchema);
