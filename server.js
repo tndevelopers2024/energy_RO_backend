@@ -22,6 +22,7 @@ connectDB().then(() => {
 app.use('/api/customers', require('./routes/customerRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/daily-service', require('./routes/dailyServiceRoutes'));
+app.use('/api/complaints', require('./routes/complaintRoutes'));
 
 app.get('/', (req, res) => {
   res.send('Backend API is running...');
