@@ -25,6 +25,18 @@ exports.getAllComplaints = async (req, res) => {
   }
 };
 
+// @desc    Get complaints by customer mobile number
+// @route   GET /api/complaints/customer/:mobileNumber
+// @access  Private (Admin)
+exports.getComplaintsByCustomer = async (req, res) => {
+  try {
+    const complaints = await Complaint.find({ mobileNumber: req.params.mobileNumber }).sort({ date: -1 });
+    res.json({ success: true, data: complaints });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // @desc    Update a specific complaint
 // @route   PATCH /api/complaints/:id
 // @access  Private (Admin)
