@@ -6,11 +6,13 @@ const {
   getDailyReportById,
   updateServiceEntry,
   deleteServiceEntry,
-  getServiceMetadata
+  getServiceMetadata,
+  getReportsByCustomerPhone
 } = require('../controllers/dailyServiceController');
 
 // All routes are private
 router.get('/metadata', getServiceMetadata);
+router.get('/customer/:phone', getReportsByCustomerPhone);
 router.post('/', createDailyReport);
 router.get('/', getAllDailyReports);
 router.get('/:id', getDailyReportById);

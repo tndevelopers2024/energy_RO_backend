@@ -104,3 +104,28 @@ exports.getServiceMetadata = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// @desc    Get daily service entries by customer phone
+// @route   GET /api/daily-service/customer/:phone
+// @access  Private (Admin)
+exports.getReportsByCustomerPhone = async (req, res) => {
+  try {
+    const { phone } = req.params;
+    const reports = await DailyService.aggregate([
+      { $unwind: "$entries" },
+      { $match: { "entries.phone": phone } },
+      { $sort: { "entries.dateOfComplain": -1, "date": -1 } },
+      { $project: {
+          _id: "$entries._id",
+          engineerName: 1,
+          branch: 1,
+          date: 1,
+          entry: "$entries"
+        }
+      }
+    ]);
+    res.json({ success: true, data: reports });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

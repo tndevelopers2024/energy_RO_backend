@@ -11,6 +11,10 @@ const customerSchema = new mongoose.Schema({
     required: [true, 'Mobile number is required'],
     trim: true,
   },
+  alternateMobileNumber: {
+    type: String,
+    trim: true,
+  },
   address: {
     type: String,
     required: [true, 'Installation address is required'],

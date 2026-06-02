@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const dailyServiceEntrySchema = new mongoose.Schema({
   siNo: { type: Number },
   complaintNo: { type: String },
+  dateOfComplain: { type: Date },
+  initialStatus: { type: String },
   customerName: { type: String },
   address: { type: String },
   phone: { type: String },

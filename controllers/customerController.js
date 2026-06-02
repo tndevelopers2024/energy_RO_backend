@@ -250,6 +250,7 @@ const searchCustomers = async (req, res) => {
           },
           userName: { $first: "$userName" },
           mobileNumber: { $first: "$mobileNumber" },
+          alternateMobileNumber: { $first: "$alternateMobileNumber" },
           email: { $first: "$email" },
           address: { $first: "$address" },
           doorNo: { $first: "$doorNo" },
