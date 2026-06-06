@@ -6,6 +6,11 @@ const customerSchema = new mongoose.Schema({
     required: [true, 'User name is required'],
     trim: true,
   },
+  customerType: {
+    type: String,
+    enum: ['Own Customer', 'Outside Customer'],
+    default: 'Own Customer',
+  },
   mobileNumber: {
     type: String,
     required: [true, 'Mobile number is required'],
@@ -125,6 +130,22 @@ const customerSchema = new mongoose.Schema({
     invoiceNo: String,
     amount: String,
     remarks: String
+  }],
+  acmcHistory: [{
+    acmcStartDate: Date,
+    acmcExpiryDate: Date,
+    acmcServicesCompleted: [Boolean],
+    acmcServiceReports: [{
+      visitDate: Date,
+      visitType: String,
+      tdsRaw: String,
+      tdsTreated: String,
+      workDetails: String,
+      partsReplaced: String,
+      invoiceNo: String,
+      amount: String,
+      remarks: String
+    }]
   }]
 }, { timestamps: true });
 

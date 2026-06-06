@@ -103,6 +103,19 @@ const activateAcmc = async (req, res) => {
     const expiryDate = new Date(startDate);
     expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
+    // If there is an existing ACMC cycle, archive it into history
+    if (customer.acmcStartDate) {
+      if (!customer.acmcHistory) {
+        customer.acmcHistory = [];
+      }
+      customer.acmcHistory.push({
+        acmcStartDate: customer.acmcStartDate,
+        acmcExpiryDate: customer.acmcExpiryDate,
+        acmcServicesCompleted: customer.acmcServicesCompleted,
+        acmcServiceReports: customer.acmcServiceReports
+      });
+    }
+
     customer.isACMC = true;
     customer.acmcStartDate = startDate;
     customer.acmcExpiryDate = expiryDate;
